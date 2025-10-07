@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCNOAR — Feature 1: Text Overlay</title>
+  <title>MCNOAR — Feature 1: Text Overlay (AR.js)</title>
 
-  <!-- A-Frame & MindAR -->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <!-- AR.js -->
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar-nft.js"></script>
 
   <style>
     body { margin: 0; font-family: Inter, sans-serif; background: #f6f7fb; }
@@ -34,24 +35,11 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.06);
       font-size: 13px;
     }
-    .loading {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex; justify-content: center; align-items: center;
-      background: #f6f7fb;
-      z-index: 100;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #222;
-    }
   </style>
 </head>
 <body>
 
-<div class="loading" id="loading">Loading AR assets...</div>
-
-<div class="ui" id="ui" style="display:none;">
+<div class="ui">
   <div class="card">
     <strong>Feature 1 — Text Overlay</strong><br>
     Point your camera at the red box → overlay appears.
@@ -59,91 +47,42 @@
   <div class="card" id="status">Status: <strong>Waiting</strong></div>
 </div>
 
-<div class="center-hint" id="hint" style="display:none;">Look for the red box marker</div>
+<div class="center-hint" id="hint">Look for the red box marker</div>
 
 <a-scene
-  mindar-image="imageTargetSrc: assets/red-box-target.mind; uiLoading: no; maxTrack: 1"
   embedded
-  color-space="sRGB"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: true"
+  arjs="sourceType: webcam; debugUIEnabled: false;"
   renderer="antialias: true; alpha: true;"
-  style="width:100vw; height:100vh;"
 >
-  <a-camera position="0 0 0"></a-camera>
-  <a-entity id="marker" mindar-image-target="targetIndex: 0"></a-entity>
+  <!-- AR.js marker -->
+  <a-marker type="pattern" url="assets/red-box-target.patt" id="marker">
+    <!-- Text overlay entity -->
+    <a-entity id="overlay" position="0 0.5 0" visible="false">
+      <a-plane width="1.6" height="0.9" color="#000" opacity="0.28" position="0 0 0"></a-plane>
+      <a-entity text="value: Historical Figure\nTitle Here; align: center; width: 1.4; color: #fff" position="0 0.3 0"></a-entity>
+      <a-entity text="value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff" position="0 0 0.02"></a-entity>
+      <a-entity text="value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff" position="0 0 -0.02" rotation="0 180 0"></a-entity>
+    </a-entity>
+  </a-marker>
+
+  <a-entity camera></a-entity>
 </a-scene>
 
 <script>
-  const sceneEl = document.querySelector("a-scene");
-  const markerEl = document.querySelector("#marker");
-  const loadingEl = document.getElementById("loading");
-  const uiEl = document.getElementById("ui");
-  const hintEl = document.getElementById("hint");
-  const statusEl = document.getElementById("status");
+  const marker = document.querySelector("#marker");
+  const overlay = document.querySelector("#overlay");
+  const statusEl = document.querySelector("#status");
+  const hintEl = document.querySelector("#hint");
 
-  let overlayCreated = false;
-
-  function createTextOverlay() {
-    if (overlayCreated) return;
-
-    const parent = document.createElement("a-entity");
-    parent.setAttribute("id", "persistent-overlay");
-    parent.setAttribute("position", "0 0.5 0"); // above marker
-
-    // Title
-    const title = document.createElement("a-entity");
-    title.setAttribute("text", "value: Historical Figure\nTitle Here; align: center; width: 1.4; color: #fff");
-    title.setAttribute("position", "0 0.3 0");
-    parent.appendChild(title);
-
-    // Front text
-    const frontText = document.createElement("a-entity");
-    frontText.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
-    frontText.setAttribute("position", "0 0 0.02");
-    parent.appendChild(frontText);
-
-    // Back text
-    const backText = document.createElement("a-entity");
-    backText.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
-    backText.setAttribute("position", "0 0 -0.02");
-    backText.setAttribute("rotation", "0 180 0");
-    parent.appendChild(backText);
-
-    // Background plane
-    const bg = document.createElement("a-plane");
-    bg.setAttribute("width", "1.6");
-    bg.setAttribute("height", "0.9");
-    bg.setAttribute("material", "color: #000; opacity: 0.28; side: double");
-    bg.setAttribute("position", "0 0 0");
-    parent.appendChild(bg);
-
-    // Append directly to marker for instant appearance
-    markerEl.appendChild(parent);
-    overlayCreated = true;
-
-    statusEl.innerHTML = "Status: <strong>Overlay active</strong>";
-    hintEl.innerText = "Walk around the box to see text from different sides.";
-  }
-
-  // Wait for MindAR to be ready before enabling scanning
-  sceneEl.addEventListener("renderstart", async () => {
-    const mindarSystem = sceneEl.systems["mindar-image-system"];
-    await mindarSystem.start(); // starts MindAR tracking
-    loadingEl.style.display = "none";
-    uiEl.style.display = "flex";
-    hintEl.style.display = "block";
-    statusEl.innerHTML = "Status: <strong>Ready</strong>";
-  });
-
-  // Trigger overlay on marker detection
-  markerEl.addEventListener("targetFound", () => {
+  // Show overlay when marker is detected
+  marker.addEventListener("markerFound", () => {
+    overlay.setAttribute("visible", "true");
     statusEl.innerHTML = "Status: <strong>Marker detected</strong>";
-    hintEl.innerText = "Overlay appearing...";
-    createTextOverlay();
+    hintEl.innerText = "Walk around the box to view text from all sides.";
   });
 
-  markerEl.addEventListener("targetLost", () => {
+  // Keep overlay visible when marker lost (optional)
+  marker.addEventListener("markerLost", () => {
     statusEl.innerHTML = "Status: <strong>Marker lost</strong>";
     hintEl.innerText = "Overlay remains anchored.";
   });
