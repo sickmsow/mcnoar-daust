@@ -9,10 +9,21 @@
     <!-- MindAR -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body {
+      * {
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Georgia', serif;
+        background: #1a1a1a;
+        color: #f5f5f5;
+      }
+      .ar-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
         overflow: hidden;
-        font-family: system-ui, sans-serif;
       }
       .ui {
         position: fixed;
@@ -27,145 +38,334 @@
       }
       .ui .card {
         pointer-events: auto;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 8px 12px;
-        border-radius: 10px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-        font-size: 14px;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        font-size: 13px;
+        color: #fff;
       }
       .center-hint {
         position: fixed;
-        bottom: 18px;
+        bottom: 24px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 50;
         pointer-events: none;
         background: rgba(255, 255, 255, 0.95);
-        padding: 8px 12px;
+        color: #222;
+        padding: 10px 20px;
         border-radius: 999px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-        font-size: 13px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        font-size: 14px;
+        font-family: system-ui, sans-serif;
       }
-      #debugInfo {
+      .scroll-indicator {
         position: fixed;
-        top: 80px;
-        left: 12px;
-        background: rgba(0, 0, 0, 0.8);
-        color: #0f0;
-        padding: 12px;
-        font-family: monospace;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 50;
+        color: rgba(255, 255, 255, 0.6);
         font-size: 12px;
-        border-radius: 8px;
-        z-index: 100;
-        max-width: 300px;
+        text-align: center;
+        pointer-events: none;
+        animation: bounce 2s infinite;
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-10px); }
+      }
+      .content-section {
+        background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+        min-height: 100vh;
+        padding: 60px 20px;
+      }
+      .content-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .artwork-title {
+        font-size: 3rem;
+        font-weight: 300;
+        margin-bottom: 12px;
+        color: #fff;
+        font-style: italic;
+      }
+      .artwork-subtitle {
+        font-size: 1.5rem;
+        color: #aaa;
+        margin-bottom: 40px;
+        font-weight: 300;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+      }
+      .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .info-card h3 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #888;
+        margin-bottom: 12px;
+      }
+      .info-card p {
+        font-size: 1.1rem;
+        color: #fff;
+        line-height: 1.6;
+      }
+      .description {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 40px;
+        border-radius: 16px;
+        border-left: 4px solid #d4af37;
+        margin-bottom: 40px;
+      }
+      .description h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #d4af37;
+      }
+      .description p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #ddd;
+        margin-bottom: 16px;
+      }
+      .divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+        margin: 50px 0;
       }
     </style>
   </head>
   <body>
-    <div class="ui">
-      <div class="card">
-        <strong>MindAR Anchored Overlay</strong><br />
-        Point your camera at the target image.
+    <!-- AR View Container -->
+    <div class="ar-container">
+      <div class="ui">
+        <div class="card">
+          <strong>MindAR Experience</strong><br />
+          Point at the artwork
+        </div>
+        <div class="card" id="status">Status: <strong>Scanning</strong></div>
       </div>
-      <div class="card" id="status">Status: <strong>Waiting</strong></div>
-    </div>
-    <div class="center-hint" id="hint">Scanning for target image...</div>
-    <div id="debugInfo">Loading MindAR...</div>
-    
-    <a-scene
-      mindar-image="imageTargetSrc: assets/demo.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: no;"
-      color-space="sRGB"
-      renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true;"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <div class="center-hint" id="hint">Scanning for artwork...</div>
+      <div class="scroll-indicator">
+        ↓<br>Scroll for details
+      </div>
       
-      <!-- Target 0 - This anchors to the first image in demo.mind -->
-      <a-entity mindar-image-target="targetIndex: 0" id="target">
+      <a-scene
+        mindar-image="imageTargetSrc: assets/demo.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: no;"
+        color-space="sRGB"
+        renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true;"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+        embedded
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+      >
+        <a-assets>
+          <a-asset-item id="fontJSON" src="https://cdn.aframe.io/examples/ui/Viga-Regular.json"></a-asset-item>
+        </a-assets>
         
-        <!-- Red Box Placeholder (Anchor Plane) -->
-        <a-plane
-          position="0 0 0"
-          rotation="0 0 0"
-          width="1"
-          height="1"
-          material="color: red; opacity: 0.7; transparent: true;"
-        ></a-plane>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
         
-        <!-- Top Text - Above the image -->
-        <a-text
-          value="Artwork Title — 1950"
-          align="center"
-          width="1.5"
-          color="#ffffff"
-          position="0 0.7 0.01"
-          scale="1.5 1.5 1"
-        ></a-text>
-        
-        <!-- Left Text -->
-        <a-entity position="-0.8 0 0.01">
-          <a-text
-            value="Historical Info:\nSymbolizes unity\nand strength."
-            align="left"
-            width="1"
-            color="#ffcc00"
-            scale="1.2 1.2 1"
-          ></a-text>
+        <!-- Target 0 - Anchors to the first image in demo.mind -->
+        <a-entity mindar-image-target="targetIndex: 0" id="target">
+          
+          <!-- Top Text - 3D extruded look with shadow -->
+          <a-entity position="0 0.8 0.02">
+            <a-text
+              value="Mona Lisa"
+              align="center"
+              width="2"
+              color="#ffffff"
+              shader="msdf"
+              font="https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+              scale="3 3 3"
+            ></a-text>
+            <!-- Shadow layer for depth -->
+            <a-text
+              value="Mona Lisa"
+              align="center"
+              width="2"
+              color="#000000"
+              shader="msdf"
+              font="https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+              scale="3 3 3"
+              position="0.01 -0.01 -0.01"
+              opacity="0.5"
+            ></a-text>
+          </a-entity>
+          
+          <!-- Left Text - Historical context with 3D effect -->
+          <a-entity position="-1 0.1 0.02">
+            <a-text
+              value="Renaissance\nMasterpiece\nc. 1503-1519"
+              align="center"
+              width="1.2"
+              color="#FFD700"
+              shader="msdf"
+              font="https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+              scale="2.2 2.2 2.2"
+              line-height="55"
+            ></a-text>
+            <a-text
+              value="Renaissance\nMasterpiece\nc. 1503-1519"
+              align="center"
+              width="1.2"
+              color="#000000"
+              shader="msdf"
+              font="https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+              scale="2.2 2.2 2.2"
+              position="0.01 -0.01 -0.01"
+              opacity="0.4"
+              line-height="55"
+            ></a-text>
+          </a-entity>
+          
+          <!-- Right Text - Artist info with 3D effect -->
+          <a-entity position="1 0.1 0.02">
+            <a-text
+              value="Leonardo\nda Vinci\n(1452-1519)"
+              align="center"
+              width="1.2"
+              color="#00CED1"
+              shader="msdf"
+              font="https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+              scale="2.2 2.2 2.2"
+              line-height="55"
+            ></a-text>
+            <a-text
+              value="Leonardo\nda Vinci\n(1452-1519)"
+              align="center"
+              width="1.2"
+              color="#000000"
+              shader="msdf"
+              font="https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+              scale="2.2 2.2 2.2"
+              position="0.01 -0.01 -0.01"
+              opacity="0.4"
+              line-height="55"
+            ></a-text>
+          </a-entity>
+          
         </a-entity>
+      </a-scene>
+    </div>
+
+    <!-- Scrollable Content Section -->
+    <div class="content-section">
+      <div class="content-wrapper">
+        <h1 class="artwork-title">Mona Lisa</h1>
+        <p class="artwork-subtitle">La Gioconda • Portrait of Lisa Gherardini</p>
         
-        <!-- Right Text -->
-        <a-entity position="0.8 0 0.01">
-          <a-text
-            value="Artist:\nJane Doe\n(1952)"
-            align="right"
-            width="1"
-            color="#00ccff"
-            scale="1.2 1.2 1"
-          ></a-text>
-        </a-entity>
-        
-      </a-entity>
-    </a-scene>
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Artist</h3>
+            <p>Leonardo da Vinci<br>(1452-1519)</p>
+          </div>
+          <div class="info-card">
+            <h3>Date</h3>
+            <p>c. 1503–1519</p>
+          </div>
+          <div class="info-card">
+            <h3>Medium</h3>
+            <p>Oil on poplar panel</p>
+          </div>
+          <div class="info-card">
+            <h3>Dimensions</h3>
+            <p>77 cm × 53 cm<br>(30 in × 21 in)</p>
+          </div>
+          <div class="info-card">
+            <h3>Location</h3>
+            <p>Musée du Louvre<br>Paris, France</p>
+          </div>
+          <div class="info-card">
+            <h3>Period</h3>
+            <p>Italian Renaissance</p>
+          </div>
+        </div>
+
+        <div class="description">
+          <h2>About the Artwork</h2>
+          <p>
+            The <em>Mona Lisa</em> is a half-length portrait painting by Italian artist Leonardo da Vinci. 
+            Considered an archetypal masterpiece of the Italian Renaissance, it has been described as 
+            "the best known, the most visited, the most written about, the most sung about, the most 
+            parodied work of art in the world."
+          </p>
+          <p>
+            The painting's novel qualities include the subject's enigmatic expression, the monumentality 
+            of the composition, the subtle modeling of forms, and the atmospheric illusionism. The painting 
+            is probably of the Italian noblewoman Lisa Gherardini, the wife of Francesco del Giocondo.
+          </p>
+          <p>
+            Leonardo's use of sfumato—the technique of allowing tones and colors to shade gradually into 
+            one another, producing softened outlines or hazy forms—gives the painting its dreamlike quality. 
+            The mysterious smile and the direct gaze create an intimate connection with the viewer that has 
+            captivated audiences for over 500 years.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="description">
+          <h2>About Leonardo da Vinci</h2>
+          <p>
+            Leonardo di ser Piero da Vinci (1452-1519) was an Italian polymath of the High Renaissance 
+            who was active as a painter, draughtsman, engineer, scientist, theorist, sculptor, and architect.
+          </p>
+          <p>
+            While his fame initially rested on his achievements as a painter, he also became known for his 
+            notebooks, in which he made drawings and notes on a variety of subjects, including anatomy, 
+            astronomy, botany, cartography, painting, and paleontology.
+          </p>
+          <p>
+            Leonardo is widely regarded as one of the greatest painters of all time and perhaps the most 
+            diversely talented person ever to have lived. His genius, perhaps more than that of any other 
+            figure, epitomized the Renaissance humanist ideal.
+          </p>
+        </div>
+      </div>
+    </div>
     
     <script>
       const target = document.querySelector("#target");
       const statusEl = document.querySelector("#status");
       const hintEl = document.querySelector("#hint");
-      const debugInfo = document.querySelector("#debugInfo");
       
       let targetVisible = false;
       
       // Scene loaded
       document.querySelector('a-scene').addEventListener('renderstart', () => {
-        debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br>Scanning for target...";
         console.log("MindAR scene started");
       });
       
       // Target found
       target.addEventListener("targetFound", () => {
         targetVisible = true;
-        statusEl.innerHTML = "Status: <strong style='color: #0a0'>Target detected ✓</strong>";
+        statusEl.innerHTML = "Status: <strong style='color: #4ade80'>Detected ✓</strong>";
         hintEl.innerText = "AR overlay active!";
-        debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br><strong style='color: #0f0'>✓ TARGET FOUND!</strong>";
         console.log("Target found!");
       });
       
       // Target lost
       target.addEventListener("targetLost", () => {
         targetVisible = false;
-        statusEl.innerHTML = "Status: <strong style='color: #f60'>Target lost</strong>";
-        hintEl.innerText = "Hold camera steady on the target.";
-        debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br><span style='color: #f60'>⚠ Target lost</span>";
+        statusEl.innerHTML = "Status: <strong style='color: #fb923c'>Lost</strong>";
+        hintEl.innerText = "Point camera at artwork";
         console.log("Target lost");
       });
-      
-      // Periodic status update
-      setInterval(() => {
-        if (!targetVisible) {
-          debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br>Scanning for target...";
-        }
-      }, 3000);
     </script>
   </body>
 </html>
