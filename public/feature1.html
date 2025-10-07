@@ -1,110 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCNOAR — Simple AR Info Overlay</title>
-
-  <!-- A-Frame & AR.js -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar-nft.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Inter, sans-serif;
-      background: #f0f0f0;
-      overflow: hidden;
-    }
-    .ui {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      z-index: 50;
-      pointer-events: none;
-    }
-    .ui .card {
-      pointer-events: auto;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 8px 12px;
-      border-radius: 10px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-      font-size: 14px;
-    }
-    .center-hint {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 50;
-      pointer-events: none;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 8px 12px;
-      border-radius: 999px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-      font-size: 13px;
-    }
-  </style>
-</head>
-<body>
-
-<div class="ui">
-  <div class="card">
-    <strong>Feature 1 — AR Info Overlay</strong><br>
-    Point your camera at the red box → info appears.
-  </div>
-  <div class="card" id="status">Status: <strong>Waiting</strong></div>
-</div>
-
-<div class="center-hint" id="hint">Look for the red box marker</div>
-
-<a-scene
-  embedded
-  arjs="sourceType: webcam; debugUIEnabled: false;"
-  renderer="antialias: true; alpha: true;"
->
-  <!-- AR.js marker -->
-  <a-marker type="pattern" url="assets/red-box-target.patt" id="marker">
-    
-    <!-- Top info -->
-    <a-entity text="value: Artwork Title\nHistorical Piece; align: center; width: 2; color: #fff" 
-              position="0 1 0" rotation="-90 0 0">
-    </a-entity>
-
-    <!-- Left info -->
-    <a-entity text="value: Description:\nThis is a beautiful artwork; align: left; width: 1.5; color: #ffcc00" 
-              position="-1 0.5 0" rotation="0 15 0">
-    </a-entity>
-
-    <!-- Right info -->
-    <a-entity text="value: Author:\nJane Doe; align: right; width: 1.5; color: #00ccff" 
-              position="1 0.5 0" rotation="0 -15 0">
-    </a-entity>
-
-  </a-marker>
-
-  <a-entity camera></a-entity>
-</a-scene>
-
-<script>
-  const marker = document.querySelector("#marker");
-  const statusEl = document.querySelector("#status");
-  const hintEl = document.querySelector("#hint");
-
-  marker.addEventListener("markerFound", () => {
-    statusEl.innerHTML = "Status: <strong>Marker detected</strong>";
-    hintEl.innerText = "AR info visible above, left, and right.";
-  });
-
-  marker.addEventListener("markerLost", () => {
-    statusEl.innerHTML = "Status: <strong>Marker lost</strong>";
-    hintEl.innerText = "Hold the camera near the artwork to see info.";
-  });
-</script>
-
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MCNOAR — Anchored AR Text Overlay</title>
+    <!-- A-Frame & AR.js -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar-nft.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: system-ui, sans-serif;
+      }
+      .ui {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        z-index: 50;
+        pointer-events: none;
+      }
+      .ui .card {
+        pointer-events: auto;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 8px 12px;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        font-size: 14px;
+      }
+      .center-hint {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 50;
+        pointer-events: none;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 8px 12px;
+        border-radius: 999px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ui">
+      <div class="card">
+        <strong>Anchored AR Overlay</strong><br />
+        Point your camera at the red box.
+      </div>
+      <div class="card" id="status">Status: <strong>Waiting</strong></div>
+    </div>
+    <div class="center-hint" id="hint">Look for the red box marker</div>
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false;"
+      renderer="antialias: true; alpha: true;"
+    >
+      <!-- Marker -->
+      <a-marker type="pattern" url="assets/red-box-target.patt" id="marker">
+        <!-- Red Box Placeholder (Anchor Plane) -->
+        <a-box
+          position="0 0 0"
+          material="color: red; opacity: 0.6;"
+          scale="1 1 0.05"
+        ></a-box>
+        
+        <!-- Top Text - Increased scale for larger text -->
+        <a-entity
+          text="value: Artwork Title — 1950; align: center; width: 2; color: #fff; shader: msdf; font: https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+          position="0 0.65 0.03"
+          scale="1.5 1.5 1.5"
+        ></a-entity>
+        
+        <!-- Left Text - Increased scale and adjusted position -->
+        <a-entity
+          text="value: Historical Info:\nThis art symbolizes\nunity and strength.; align: left; width: 1.2; color: #ffcc00; shader: msdf; font: https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+          position="-0.7 0 0.03"
+          scale="1.2 1.2 1.2"
+        ></a-entity>
+        
+        <!-- Right Text - Increased scale and adjusted position -->
+        <a-entity
+          text="value: Artist:\nJane Doe\n(1952); align: right; width: 1.2; color: #00ccff; shader: msdf; font: https://cdn.aframe.io/examples/ui/Viga-Regular.json"
+          position="0.7 0 0.03"
+          scale="1.2 1.2 1.2"
+        ></a-entity>
+      </a-marker>
+      <a-entity camera></a-entity>
+    </a-scene>
+    <script>
+      const marker = document.querySelector("#marker");
+      const statusEl = document.querySelector("#status");
+      const hintEl = document.querySelector("#hint");
+      marker.addEventListener("markerFound", () => {
+        statusEl.innerHTML = "Status: <strong>Marker detected</strong>";
+        hintEl.innerText = "AR info anchored to artwork.";
+      });
+      marker.addEventListener("markerLost", () => {
+        statusEl.innerHTML = "Status: <strong>Marker lost</strong>";
+        hintEl.innerText = "Hold camera steady on the artwork.";
+      });
+    </script>
+  </body>
 </html>
