@@ -2,88 +2,29 @@ import React from "react";
 import QRCode from "react-qr-code";
 
 const App = () => {
-  // Artwork images for the first feature
-  const artworkImages = [
-    "https://images.pexels.com/photos/31167094/pexels-photo-31167094.jpeg",
-    "https://i.ibb.co/pb7m2fN/museum-art2.jpg",
-    "https://i.ibb.co/Tb6cjJ3/museum-art3.jpg",
-    "https://i.ibb.co/7zsvhKk/museum-art4.jpg",
-    "https://i.ibb.co/RybbyjJ/museum-art5.jpg",
-  ];
+  // Single artwork image
+  const artworkImage =
+    "https://images.pexels.com/photos/31167094/pexels-photo-31167094.jpeg";
 
-  // Ordered from easiest → most complex
+  // AR features
   const arFeatures = [
     {
       id: 1,
       title: "Text Overlay (Intro to AR)",
       description: `
-        When visitors scan the QR code near an artwork, a simple 3D text overlay 
-        appears above the piece. The text provides contextual info such as the 
-        artist’s name, the creation year, and a short cultural background. 
-        It’s the simplest feature, ideal for museums introducing AR gradually.
+        When visitors scan the QR code or point at the red box, a simple 3D text overlay 
+        appears above the piece. It provides artist info, creation year, and cultural context.
       `,
       qrLink: "https://mcnoar-daust.vercel.app/feature1.html",
-      images: artworkImages,
+      image: artworkImage,
     },
     {
       id: 2,
       title: "Artwork Recognition",
       description: `
-        Using computer vision and MindAR, the app can recognize physical artworks 
-        without a QR code. When detected, it automatically loads interactive AR layers 
-        tied to that artwork — like contextual stories or metadata in 3D space.
+        The app recognizes artworks automatically with MindAR — no QR required.
       `,
       qrLink: "/feature2.html",
-    },
-    {
-      id: 3,
-      title: "3D Holographic Text",
-      description: `
-        Adds depth to storytelling — 3D floating holographic text appears anchored 
-        to the real-world artwork, using subtle motion and light reflections. 
-        It helps create a futuristic “museum of tomorrow” vibe.
-      `,
-      qrLink: "/feature3.html",
-    },
-    {
-      id: 4,
-      title: "Pixel Art Transformation",
-      description: `
-        Reinterprets the artwork into stylized 2D pixel art. Visitors can switch 
-        between the real view and the stylized digital reinterpretation, 
-        encouraging creative engagement and digital literacy.
-      `,
-      qrLink: "/feature4.html",
-    },
-    {
-      id: 5,
-      title: "Multimedia Overlays",
-      description: `
-        Adds contextual media layers — such as audio narrations, archival photos, 
-        or short documentary videos — floating around the piece. Perfect for showing 
-        restoration timelines or artist interviews.
-      `,
-      qrLink: "/feature5.html",
-    },
-    {
-      id: 6,
-      title: "Interactive Visitor Notes",
-      description: `
-        Visitors can leave digital sticky notes or emojis directly on AR layers. 
-        Notes appear in 3D space and animate slightly when tapped, giving a sense 
-        of community and shared interpretation of art.
-      `,
-      qrLink: "/feature6.html",
-    },
-    {
-      id: 7,
-      title: "Accessibility Enhancements & Visual Effects",
-      description: `
-        Integrates text-to-speech narration, multilingual captions (French, English, Wolof), 
-        and visual effects like holographic glow, particles, and high-contrast modes 
-        for colorblind visitors.
-      `,
-      qrLink: "/feature7.html",
     },
   ];
 
@@ -102,9 +43,8 @@ const App = () => {
           🏛️ MCNOAR AR Prototype
         </h1>
         <p style={{ maxWidth: "600px", margin: "0 auto", color: "#555" }}>
-          Explore the planned Augmented Reality features for the{" "}
-          <strong>Musée des Civilisations Noires</strong> digital experience.  
-          Each QR code opens a live demo page when deployed on Vercel.
+          Explore planned AR features for the{" "}
+          <strong>Musée des Civilisations Noires</strong> digital experience.
         </p>
       </header>
 
@@ -129,12 +69,10 @@ const App = () => {
               transition: "all 0.25s ease",
             }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.boxShadow =
-                "0 6px 20px rgba(0,0,0,0.1)")
+              (e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.1)")
             }
             onMouseLeave={(e) =>
-              (e.currentTarget.style.boxShadow =
-                "0 4px 12px rgba(0,0,0,0.05)")
+              (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)")
             }
           >
             <h2 style={{ color: "#333", marginBottom: "0.5rem" }}>
@@ -151,66 +89,52 @@ const App = () => {
               {feature.description}
             </p>
 
-            {feature.images && (
-              <div
+            {/* Single artwork image */}
+            {feature.image && (
+              <img
+                src={feature.image}
+                alt="Artwork"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
-                  gap: "0.5rem",
+                  width: "100%",
+                  borderRadius: "8px",
+                  objectFit: "cover",
                   marginTop: "1rem",
                 }}
-              >
-                {feature.images.map((img, index) => (
-                  <img
-                    key={index}
-                    src={img}
-                    alt={`Artwork example ${index + 1}`}
-                    style={{
-                      width: "100%",
-                      borderRadius: "8px",
-                      objectFit: "cover",
-                    }}
-                  />
-                ))}
-              </div>
+              />
             )}
 
+            {/* Red box AR trigger */}
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                width: "120px",
+                height: "120px",
+                backgroundColor: "red",
+                borderRadius: "8px",
                 marginTop: "1rem",
-                flexWrap: "wrap",
-                gap: "1rem",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "#fff",
+                fontWeight: "bold",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+              onClick={() => window.open(feature.qrLink, "_blank")}
+            >
+              AR Trigger
+            </div>
+
+            {/* QR code */}
+            <div
+              style={{
+                background: "white",
+                padding: "0.4rem",
+                borderRadius: "8px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                marginTop: "1rem",
               }}
             >
-              <a
-                href={feature.qrLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  backgroundColor: "#0066cc",
-                  color: "white",
-                  padding: "0.6rem 1.2rem",
-                  borderRadius: "8px",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                  fontSize: "0.9rem",
-                }}
-              >
-                Open Demo
-              </a>
-              <div
-                style={{
-                  background: "white",
-                  padding: "0.4rem",
-                  borderRadius: "8px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                }}
-              >
-                <QRCode value={feature.qrLink} size={80} />
-              </div>
+              <QRCode value={feature.qrLink} size={80} />
             </div>
           </div>
         ))}
