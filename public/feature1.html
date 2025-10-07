@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MCNOAR — Feature 1: Text Overlay</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <!-- MindAR A-Frame addon -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background: #f6f7fb; color: #111; }
+    .ui {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 50;
+      pointer-events: none;
+    }
+    .ui .card {
+      pointer-events: auto;
+      background: rgba(255,255,255,0.95);
+      padding: 8px 12px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      font-size: 14px;
+    }
+    .center-hint {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      pointer-events: none;
+      background: rgba(255,255,255,0.95);
+      padding: 8px 12px;
+      border-radius: 999px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- UI / instructions -->
+  <div class="ui">
+    <div class="card">
+      <strong>Feature 1 — Text Overlay</strong><br>
+      Point camera at the QR/marker → step back → text remains anchored.
+    </div>
+    <div class="card" id="status">Status: <strong>Waiting for marker</strong></div>
+  </div>
+
+  <div class="center-hint" id="hint">Point camera at the marker</div>
+
+  <!-- MindAR Scene -->
+  <a-scene
+    mindar-image="imageTargetSrc: targets.mind; uiLoading: no; maxTrack: 1"
+    embedded
+    color-space="sRGB"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: true"
+    renderer="antialias: true; alpha: true;"
+    style="width: 100vw; height: 100vh;"
+  >
+    <a-camera position="0 0 0"></a-camera>
+    <a-entity id="marker" mindar-image-target="targetIndex: 0"></a-entity>
+  </a-scene>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const markerEl = document.querySelector("#marker");
+      const statusEl = document.querySelector("#status");
+      const hintEl = document.querySelector("#hint");
+      const sceneEl = document.querySelector("a-scene");
+
+      let persistentOverlay = null;
+
+      function showStatus(text) {
+        statusEl.innerHTML = `Status: <strong>${text}</strong>`;
+      }
+
+      function createTextEntity(value, options = {}) {
+        const entity = document.createElement("a-entity");
+        const textAttr = [
+          `value: ${value.replace(/\n/g, '\\n')}`,
+          `align: center`,
+          `wrapCount: 30`,
+          `baseline: center`,
+          `color: ${options.color || "#ffffff"}`,
+          `width: ${options.width || 1.2}`,
+        ].join("; ");
+        entity.setAttribute("text", textAttr);
+        if (options.position) entity.setAttribute("position", options.position);
+        if (options.rotation) entity.setAttribute("rotation", options.rotation);
+        if (options.scale) entity.setAttribute("scale", options.scale);
+        return entity;
+      }
+
+      function createPersistentOverlay() {
+        if (persistentOverlay) return; // Only create once unless reset
+
+        // Get marker world position & orientation
+        const worldPos = new THREE.Vector3();
+        const worldQuat = new THREE.Quaternion();
+        markerEl.object3D.getWorldPosition(worldPos);
+        markerEl.object3D.getWorldQuaternion(worldQuat);
+
+        const parent = document.createElement("a-entity");
+        parent.setAttribute("id", "persistent-overlay");
+        parent.object3D.position.copy(worldPos);
+        parent.object3D.quaternion.copy(worldQuat);
+        parent.object3D.position.y += 0.45;
+
+        // Title
+        const title = createTextEntity("Historical Figure\nTitle Here", { color: "#fff", width: 1.4 });
+        title.setAttribute("position", "0 0.35 0");
+        title.setAttribute("scale", "0.7 0.7 0.7");
+
+        // Front & back text
+        const frontText = createTextEntity("Born: 1890\nImportant for: XYZ\nContext info", { color: "#e6f9ff" });
+        frontText.setAttribute("position", "0 0 0.02");
+        frontText.setAttribute("scale", "0.6 0.6 0.6");
+        const backText = createTextEntity("Born: 1890\nImportant for: XYZ\nContext info", { color: "#e6f9ff" });
+        backText.setAttribute("position", "0 0 -0.02");
+        backText.setAttribute("rotation", "0 180 0");
+        backText.setAttribute("scale", "0.6 0.6 0.6");
+
+        // Background plane
+        const bg = document.createElement("a-plane");
+        bg.setAttribute("width", "1.6");
+        bg.setAttribute("height", "0.9");
+        bg.setAttribute("material", "color: #000; opacity: 0.28; side: double");
+        bg.setAttribute("position", "0 0 0");
+
+        parent.appendChild(bg);
+        parent.appendChild(title);
+        parent.appendChild(frontText);
+        parent.appendChild(backText);
+
+        // Fade-in animation
+        parent.setAttribute("scale", "0.01 0.01 0.01");
+        parent.setAttribute("animation__open", "property: scale; to: 1 1 1; dur: 700; easing: easeOutBack;");
+
+        sceneEl.appendChild(parent);
+        persistentOverlay = parent;
+
+        showStatus("Overlay visible (persisted)");
+        hintEl.innerText = "Walk around the artwork to view text from both sides.";
+      }
+
+      // Trigger overlay on marker detection
+      markerEl.addEventListener("targetFound", () => {
+        showStatus("Marker found — creating overlay");
+        hintEl.innerText = "Marker detected — hold steady...";
+        createPersistentOverlay();
+      });
+
+      // Keep overlay even if marker lost
+      markerEl.addEventListener("targetLost", () => {
+        showStatus("Marker lost — overlay persisted");
+        hintEl.innerText = "Overlay remains anchored in world space.";
+      });
+
+      // Optional: allow QR code to reset overlay
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("reset") === "true" && persistentOverlay) {
+        persistentOverlay.remove();
+        persistentOverlay = null;
+        createPersistentOverlay();
+      }
+    });
+  </script>
+</body>
+</html>
