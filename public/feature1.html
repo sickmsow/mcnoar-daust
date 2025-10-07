@@ -4,14 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MCNOAR — Feature 1: Text Overlay</title>
-
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <!-- MindAR A-Frame addon -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
   <style>
-    body { margin: 0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background: #f6f7fb; color: #111; }
+    body { margin: 0; font-family: Inter, sans-serif; background: #f6f7fb; }
     .ui {
       position: fixed;
       top: 12px;
@@ -51,113 +46,75 @@
   <div class="ui">
     <div class="card">
       <strong>Feature 1 — Text Overlay</strong><br>
-      Point camera at the red box → step back → text remains anchored.
+      Click the red box in AR → text overlay appears anchored.
     </div>
-    <div class="card" id="status">Status: <strong>Waiting for trigger</strong></div>
+    <div class="card" id="status">Status: <strong>Waiting</strong></div>
   </div>
 
-  <div class="center-hint" id="hint">Point camera at the red box</div>
+  <div class="center-hint" id="hint">Look for the red box and tap it</div>
 
-  <a-scene
-    mindar-image="imageTargetSrc: redbox.mind; uiLoading: no; maxTrack: 1"
-    embedded
-    color-space="sRGB"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: true"
-    renderer="antialias: true; alpha: true;"
-    style="width: 100vw; height: 100vh;"
-  >
-    <a-camera position="0 0 0"></a-camera>
+  <a-scene embedded color-space="sRGB" vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true;" style="width:100vw; height:100vh;">
+    <a-camera position="0 1.6 3"></a-camera>
 
-    <!-- Red box is the target -->
-    <a-entity id="marker" mindar-image-target="targetIndex: 0"></a-entity>
+    <!-- Red box trigger -->
+    <a-box id="redBox" position="0 1 -2" depth="0.3" height="0.3" width="0.3" color="red"></a-box>
   </a-scene>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const markerEl = document.querySelector("#marker");
-      const statusEl = document.querySelector("#status");
-      const hintEl = document.querySelector("#hint");
-      const sceneEl = document.querySelector("a-scene");
-      let overlay = null;
+    const redBox = document.querySelector("#redBox");
+    const statusEl = document.querySelector("#status");
+    const hintEl = document.querySelector("#hint");
+    const sceneEl = document.querySelector("a-scene");
 
-      function showStatus(text) {
-        statusEl.innerHTML = `Status: <strong>${text}</strong>`;
-      }
+    let overlayCreated = false;
 
-      function createTextEntity(value, options = {}) {
-        const entity = document.createElement("a-entity");
-        const textAttr = [
-          `value: ${value.replace(/\n/g, '\\n')}`,
-          `align: center`,
-          `wrapCount: 30`,
-          `baseline: center`,
-          `color: ${options.color || "#ffffff"}`,
-          `width: ${options.width || 1.2}`,
-        ].join("; ");
-        entity.setAttribute("text", textAttr);
-        if (options.position) entity.setAttribute("position", options.position);
-        if (options.rotation) entity.setAttribute("rotation", options.rotation);
-        if (options.scale) entity.setAttribute("scale", options.scale);
-        return entity;
-      }
+    function createTextOverlay() {
+      if (overlayCreated) return;
 
-      function createOverlay() {
-        if (overlay) return;
+      const parent = document.createElement("a-entity");
+      parent.setAttribute("id", "persistent-overlay");
+      parent.setAttribute("position", "0 1.5 -2");
 
-        const worldPos = new THREE.Vector3();
-        const worldQuat = new THREE.Quaternion();
-        markerEl.object3D.getWorldPosition(worldPos);
-        markerEl.object3D.getWorldQuaternion(worldQuat);
+      // Title
+      const title = document.createElement("a-entity");
+      title.setAttribute("text", "value: Historical Figure\nTitle Here; align: center; width: 1.4; color: #fff");
+      title.setAttribute("position", "0 0.3 0");
+      parent.appendChild(title);
 
-        const parent = document.createElement("a-entity");
-        parent.object3D.position.copy(worldPos);
-        parent.object3D.quaternion.copy(worldQuat);
-        parent.object3D.position.y += 0.45;
+      // Body text front
+      const bodyFront = document.createElement("a-entity");
+      bodyFront.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
+      bodyFront.setAttribute("position", "0 0 0.02");
+      parent.appendChild(bodyFront);
 
-        const title = createTextEntity("Historical Figure\nTitle Here", { color: "#fff", width: 1.4 });
-        title.setAttribute("position", "0 0.35 0");
-        title.setAttribute("scale", "0.7 0.7 0.7");
+      // Body text back
+      const bodyBack = document.createElement("a-entity");
+      bodyBack.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
+      bodyBack.setAttribute("position", "0 0 -0.02");
+      bodyBack.setAttribute("rotation", "0 180 0");
+      parent.appendChild(bodyBack);
 
-        const front = createTextEntity("Born: 1890\nImportant for: XYZ\nContext info", { color: "#e6f9ff" });
-        front.setAttribute("position", "0 0 0.02");
-        front.setAttribute("scale", "0.6 0.6 0.6");
-        const back = createTextEntity("Born: 1890\nImportant for: XYZ\nContext info", { color: "#e6f9ff" });
-        back.setAttribute("position", "0 0 -0.02");
-        back.setAttribute("rotation", "0 180 0");
-        back.setAttribute("scale", "0.6 0.6 0.6");
+      // Background plane
+      const bg = document.createElement("a-plane");
+      bg.setAttribute("width", "1.6");
+      bg.setAttribute("height", "0.9");
+      bg.setAttribute("material", "color: #000; opacity: 0.28; side: double");
+      bg.setAttribute("position", "0 0 0");
+      parent.appendChild(bg);
 
-        const bg = document.createElement("a-plane");
-        bg.setAttribute("width", "1.6");
-        bg.setAttribute("height", "0.9");
-        bg.setAttribute("material", "color: #000; opacity: 0.28; side: double");
-        bg.setAttribute("position", "0 0 0");
+      // Fade-in animation
+      parent.setAttribute("scale", "0.01 0.01 0.01");
+      parent.setAttribute("animation__open", "property: scale; to: 1 1 1; dur: 700; easing: easeOutBack");
 
-        parent.appendChild(bg);
-        parent.appendChild(title);
-        parent.appendChild(front);
-        parent.appendChild(back);
+      sceneEl.appendChild(parent);
+      overlayCreated = true;
 
-        parent.setAttribute("scale", "0.01 0.01 0.01");
-        parent.setAttribute("animation__open", "property: scale; to: 1 1 1; dur: 700; easing: easeOutBack;");
+      statusEl.innerHTML = "Status: <strong>Overlay active</strong>";
+      hintEl.innerText = "Walk around the box to see the text from different sides.";
+    }
 
-        sceneEl.appendChild(parent);
-        overlay = parent;
-
-        showStatus("Overlay visible (persisted)");
-        hintEl.innerText = "Walk around the red box to view text from different angles.";
-      }
-
-      markerEl.addEventListener("targetFound", () => {
-        showStatus("Red box detected — creating overlay");
-        hintEl.innerText = "Hold steady...";
-        createOverlay();
-      });
-
-      markerEl.addEventListener("targetLost", () => {
-        showStatus("Red box lost — overlay persists");
-        hintEl.innerText = "Overlay remains anchored in world space.";
-      });
+    redBox.addEventListener("click", () => {
+      createTextOverlay();
     });
   </script>
 </body>
