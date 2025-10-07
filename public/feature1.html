@@ -1,95 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCNOAR — Artwork Info Overlay (AR.js)</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCNOAR — AR + Scroll Prototype</title>
 
   <!-- A-Frame & AR.js -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar-nft.js"></script>
 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    body { margin: 0; font-family: Inter, sans-serif; background: #f6f7fb; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f2f3f7;
+      color: #222;
+    }
+
+    /* Floating status panel */
     .ui {
-      position: fixed; top: 12px; left: 12px; right: 12px;
-      display: flex; justify-content: space-between; gap: 12px;
-      z-index: 50; pointer-events: none;
-    }
-    .ui .card {
-      pointer-events: auto;
-      background: rgba(255,255,255,0.95);
-      padding: 8px 12px;
-      border-radius: 10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      font-size: 14px;
-    }
-    .center-hint {
-      position: fixed; bottom: 18px; left: 50%;
+      position: fixed;
+      top: 12px;
+      left: 50%;
       transform: translateX(-50%);
-      z-index: 50; pointer-events: none;
       background: rgba(255,255,255,0.95);
-      padding: 8px 12px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      font-size: 14px;
+      z-index: 50;
+      text-align: center;
+    }
+
+    /* Scrollable card content */
+    #scroll-content {
+      max-width: 450px;
+      margin: 16px auto 32px auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #scroll-content h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      color: #0d1b2a;
+    }
+
+    #scroll-content p {
+      font-size: 16px;
+      margin: 0;
+      line-height: 1.5;
+      color: #33415c;
+    }
+
+    /* TTS Button */
+    .tts-button {
+      margin-top: 12px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6b5bff, #8e8efc);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tts-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .tts-button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Center hint */
+    .center-hint {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.9);
+      padding: 8px 16px;
       border-radius: 999px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
       font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      z-index: 50;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      #scroll-content { margin: 12px; padding: 16px; }
+      #scroll-content h1 { font-size: 20px; }
+      #scroll-content p { font-size: 15px; }
     }
   </style>
 </head>
 <body>
 
-<div class="ui">
-  <div class="card">
-    <strong>Artwork Info</strong><br>
-    Point your camera at the artwork → info overlay appears.
-  </div>
-  <div class="card" id="status">Status: <strong>Waiting</strong></div>
+<div class="ui" id="status">
+  <strong>Status:</strong> Waiting for marker...
 </div>
 
-<div class="center-hint" id="hint">Look for the artwork marker</div>
+<div class="center-hint" id="hint">Point your camera at the red box marker</div>
 
-<a-scene
-  embedded
-  arjs="sourceType: webcam; debugUIEnabled: false;"
-  renderer="antialias: true; alpha: true;"
->
-  <!-- Marker -->
+<!-- AR Scene -->
+<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
   <a-marker type="pattern" url="assets/red-box-target.patt" id="marker">
-    <!-- Overlay anchored to marker -->
-    <a-entity id="overlay" visible="false" position="0 0.5 0">
-      <!-- Background plane -->
-      <a-plane width="2.5" height="1.2" color="#000" opacity="0.3" position="0 0 0"></a-plane>
-
-      <!-- Top Title -->
-      <a-entity text="value: Artwork Title Here; align:center; width:2.2; color:#fff" position="0 0.45 0"></a-entity>
-
-      <!-- Left Description -->
-      <a-entity text="value: Description of the artwork goes here.; align:left; width:1.2; color:#e6f9ff" position="-0.65 0 0.01"></a-entity>
-
-      <!-- Right Author -->
-      <a-entity text="value: Author Name; align:right; width:1.2; color:#ffd700" position="0.65 0 0.01"></a-entity>
+    <a-entity id="overlay" position="0 1 0" visible="false">
+      <a-plane width="2" height="1.2" color="#000" opacity="0.28" position="0 0 0" radius="0.05"></a-plane>
+      <a-entity text="value: Historical Figure\nTitle Here; align:center; width:2; color:#fff; wrapCount: 30" position="0 0.35 0"></a-entity>
+      <a-entity text="value: Left description\nImportant for: XYZ; align:left; width:1.6; color:#e6f9ff; wrapCount: 30" position="-0.8 0 0.03"></a-entity>
+      <a-entity text="value: Right author\nBorn: 1890; align:right; width:1.6; color:#e6f9ff; wrapCount: 30" position="0.8 0 -0.03" rotation="0 180 0"></a-entity>
     </a-entity>
   </a-marker>
-
   <a-entity camera></a-entity>
 </a-scene>
 
+<!-- Scrollable content -->
+<div id="scroll-content">
+  <h1 id="title">Historical Figure — Title Here</h1>
+  <p id="description">Left description — Important for: XYZ</p>
+  <p id="author">Right author — Born: 1890</p>
+  <button class="tts-button" id="tts-btn">🔊 Play Audio</button>
+</div>
+
 <script>
-const marker = document.querySelector("#marker");
-const overlay = document.querySelector("#overlay");
-const statusEl = document.querySelector("#status");
-const hintEl = document.querySelector("#hint");
+  const marker = document.querySelector("#marker");
+  const overlay = document.querySelector("#overlay");
+  const statusEl = document.getElementById("status");
+  const hintEl = document.getElementById("hint");
 
-marker.addEventListener("markerFound", () => {
-  overlay.setAttribute("visible", "true");
-  statusEl.innerHTML = "Status: <strong>Marker detected</strong>";
-  hintEl.innerText = "Overlay anchored to the artwork.";
-});
+  // Marker events
+  marker.addEventListener("markerFound", () => {
+    overlay.setAttribute("visible", "true");
+    statusEl.innerHTML = "<strong>Status:</strong> Marker detected — AR overlay visible";
+    hintEl.innerText = "AR overlay visible above the artwork";
+  });
 
-marker.addEventListener("markerLost", () => {
-  statusEl.innerHTML = "Status: <strong>Marker lost</strong>";
-  hintEl.innerText = "Overlay will reappear when you point back.";
-});
+  marker.addEventListener("markerLost", () => {
+    statusEl.innerHTML = "<strong>Status:</strong> Marker lost — overlay remains visible in scroll";
+    hintEl.innerText = "Scroll down to read the artwork information";
+  });
+
+  // Text-to-Speech
+  document.getElementById("tts-btn").addEventListener("click", () => {
+    const title = document.getElementById("title").innerText;
+    const description = document.getElementById("description").innerText;
+    const author = document.getElementById("author").innerText;
+    const utterance = new SpeechSynthesisUtterance(`${title}. ${description}. ${author}.`);
+    window.speechSynthesis.speak(utterance);
+  });
 </script>
 
 </body>
