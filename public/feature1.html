@@ -1,67 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCNOAR — Feature 1: Text Overlay (AR.js)</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCNOAR — Fixed AR Overlay</title>
 
-  <!-- A-Frame -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <!-- AR.js -->
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar-nft.js"></script>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar-nft.js"></script>
 
-  <style>
-    body { margin: 0; font-family: Inter, sans-serif; background: #f6f7fb; }
-    .ui {
-      position: fixed; top: 12px; left: 12px; right: 12px;
-      display: flex; justify-content: space-between; gap: 12px;
-      z-index: 50; pointer-events: none;
-    }
-    .ui .card {
-      pointer-events: auto;
-      background: rgba(255,255,255,0.95);
-      padding: 8px 12px;
-      border-radius: 10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      font-size: 14px;
-    }
-    .center-hint {
-      position: fixed; bottom: 18px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 50; pointer-events: none;
-      background: rgba(255,255,255,0.95);
-      padding: 8px 12px;
-      border-radius: 999px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-      font-size: 13px;
-    }
-  </style>
+<style>
+body { margin:0; font-family:Inter, sans-serif; background:#f6f7fb; }
+.ui { position: fixed; top:12px; left:12px; right:12px; display:flex; justify-content:space-between; gap:12px; z-index:50; pointer-events:none; }
+.ui .card { pointer-events:auto; background:rgba(255,255,255,0.95); padding:8px 12px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.08); font-size:14px; }
+.center-hint { position: fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:50; pointer-events:none; background:rgba(255,255,255,0.95); padding:8px 12px; border-radius:999px; box-shadow:0 6px 18px rgba(0,0,0,0.06); font-size:13px; }
+</style>
 </head>
 <body>
 
 <div class="ui">
-  <div class="card">
-    <strong>Feature 1 — Text Overlay</strong><br>
-    Point your camera at the red box → overlay appears.
-  </div>
+  <div class="card"><strong>Feature 1 — Text Overlay</strong><br>Point camera at red box → overlay appears.</div>
   <div class="card" id="status">Status: <strong>Waiting</strong></div>
 </div>
+<div class="center-hint" id="hint">Scan the red box marker</div>
 
-<div class="center-hint" id="hint">Look for the red box marker</div>
-
-<a-scene
-  embedded
-  arjs="sourceType: webcam; debugUIEnabled: false;"
-  renderer="antialias: true; alpha: true;"
->
-  <!-- AR.js marker -->
+<a-scene embedded arjs="sourceType:webcam; debugUIEnabled:false;" renderer="antialias:true; alpha:true;">
   <a-marker type="pattern" url="assets/red-box-target.patt" id="marker">
-    <!-- Text overlay entity -->
-    <a-entity id="overlay" position="0 0.5 0" visible="false">
-      <a-plane width="1.6" height="0.9" color="#000" opacity="0.28" position="0 0 0"></a-plane>
-      <a-entity text="value: Historical Figure\nTitle Here; align: center; width: 1.4; color: #fff" position="0 0.3 0"></a-entity>
-      <a-entity text="value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff" position="0 0 0.02"></a-entity>
-      <a-entity text="value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff" position="0 0 -0.02" rotation="0 180 0"></a-entity>
+    <a-entity id="overlay" visible="false">
+      <a-plane width="2" height="1.2" color="#000" opacity="0.28" position="0 0 0"></a-plane>
+      <a-entity text="value: Historical Figure\nTitle Here; align:center; width:2; color:#fff" position="0 0.4 0" scale="1.2 1.2 1.2"></a-entity>
+      <a-entity text="value: Born: 1890\nImportant for: XYZ; align:center; width:1.6; color:#e6f9ff" position="0 0 0.03" scale="1.2 1.2 1.2"></a-entity>
+      <a-entity text="value: Born: 1890\nImportant for: XYZ; align:center; width:1.6; color:#e6f9ff" position="0 0 -0.03" rotation="0 180 0" scale="1.2 1.2 1.2"></a-entity>
     </a-entity>
   </a-marker>
 
@@ -69,23 +37,37 @@
 </a-scene>
 
 <script>
-  const marker = document.querySelector("#marker");
-  const overlay = document.querySelector("#overlay");
-  const statusEl = document.querySelector("#status");
-  const hintEl = document.querySelector("#hint");
+const marker = document.querySelector("#marker");
+const overlay = document.querySelector("#overlay");
+const sceneEl = document.querySelector("a-scene");
+const statusEl = document.querySelector("#status");
+const hintEl = document.querySelector("#hint");
 
-  // Show overlay when marker is detected
-  marker.addEventListener("markerFound", () => {
+let anchored = false;
+
+marker.addEventListener("markerFound", () => {
+  if (!anchored) {
+    // Show overlay
     overlay.setAttribute("visible", "true");
-    statusEl.innerHTML = "Status: <strong>Marker detected</strong>";
-    hintEl.innerText = "Walk around the box to view text from all sides.";
-  });
 
-  // Keep overlay visible when marker lost (optional)
-  marker.addEventListener("markerLost", () => {
-    statusEl.innerHTML = "Status: <strong>Marker lost</strong>";
-    hintEl.innerText = "Overlay remains anchored.";
-  });
+    // Get marker's world position & rotation
+    const worldPos = new THREE.Vector3();
+    const worldQuat = new THREE.Quaternion();
+    marker.object3D.getWorldPosition(worldPos);
+    marker.object3D.getWorldQuaternion(worldQuat);
+
+    // Detach from marker and attach to scene
+    sceneEl.appendChild(overlay);
+    overlay.object3D.position.copy(worldPos);
+    overlay.object3D.quaternion.copy(worldQuat);
+
+    anchored = true;
+    marker.setAttribute("visible","false");
+
+    statusEl.innerHTML = "Status: <strong>Overlay anchored</strong>";
+    hintEl.innerText = "Overlay fixed — marker no longer needed.";
+  }
+});
 </script>
 
 </body>
