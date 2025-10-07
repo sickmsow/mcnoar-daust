@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCNOAR — Feature 1: Text Overlay (AR.js Animated)</title>
+  <title>MCNOAR — Artwork Info Overlay (AR.js)</title>
 
   <!-- A-Frame & AR.js -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -40,26 +40,34 @@
 
 <div class="ui">
   <div class="card">
-    <strong>Feature 1 — Text Overlay</strong><br>
-    Point your camera at the red box → overlay appears and moves to fixed position.
+    <strong>Artwork Info</strong><br>
+    Point your camera at the artwork → info overlay appears.
   </div>
   <div class="card" id="status">Status: <strong>Waiting</strong></div>
 </div>
 
-<div class="center-hint" id="hint">Look for the red box marker</div>
+<div class="center-hint" id="hint">Look for the artwork marker</div>
 
 <a-scene
   embedded
   arjs="sourceType: webcam; debugUIEnabled: false;"
   renderer="antialias: true; alpha: true;"
 >
-  <!-- AR.js marker -->
+  <!-- Marker -->
   <a-marker type="pattern" url="assets/red-box-target.patt" id="marker">
-    <a-entity id="overlay" visible="false" position="0 1 0" rotation="-90 0 0">
-      <a-plane width="2" height="1.2" color="#000" opacity="0.28" position="0 0 0"></a-plane>
-      <a-entity text="value: Historical Figure\nTitle Here; align:center; width:2; color:#fff" position="0 0.4 0"></a-entity>
-      <a-entity text="value: Born: 1890\nImportant for: XYZ; align:center; width:1.6; color:#e6f9ff" position="0 0 0.03"></a-entity>
-      <a-entity text="value: Born: 1890\nImportant for: XYZ; align:center; width:1.6; color:#e6f9ff" position="0 0 -0.03" rotation="0 180 0"></a-entity>
+    <!-- Overlay anchored to marker -->
+    <a-entity id="overlay" visible="false" position="0 0.5 0">
+      <!-- Background plane -->
+      <a-plane width="2.5" height="1.2" color="#000" opacity="0.3" position="0 0 0"></a-plane>
+
+      <!-- Top Title -->
+      <a-entity text="value: Artwork Title Here; align:center; width:2.2; color:#fff" position="0 0.45 0"></a-entity>
+
+      <!-- Left Description -->
+      <a-entity text="value: Description of the artwork goes here.; align:left; width:1.2; color:#e6f9ff" position="-0.65 0 0.01"></a-entity>
+
+      <!-- Right Author -->
+      <a-entity text="value: Author Name; align:right; width:1.2; color:#ffd700" position="0.65 0 0.01"></a-entity>
     </a-entity>
   </a-marker>
 
@@ -72,54 +80,15 @@ const overlay = document.querySelector("#overlay");
 const statusEl = document.querySelector("#status");
 const hintEl = document.querySelector("#hint");
 
-let overlayMoved = false;
-
 marker.addEventListener("markerFound", () => {
   overlay.setAttribute("visible", "true");
   statusEl.innerHTML = "Status: <strong>Marker detected</strong>";
-  hintEl.innerText = "Overlay appearing...";
-
-  // Animate overlay to a fixed world position
-  if (!overlayMoved) {
-    overlayMoved = true;
-
-    // Detach overlay from marker
-    const scene = document.querySelector("a-scene");
-    const worldPosition = new THREE.Vector3();
-    overlay.object3D.getWorldPosition(worldPosition);
-
-    const worldQuaternion = new THREE.Quaternion();
-    overlay.object3D.getWorldQuaternion(worldQuaternion);
-
-    // Remove from marker
-    marker.removeChild(overlay);
-    scene.appendChild(overlay);
-
-    // Apply world position & rotation
-    overlay.object3D.position.copy(worldPosition);
-    overlay.object3D.quaternion.copy(worldQuaternion);
-
-    // Animate to final fixed position 1 meter in front of camera
-    const finalPosition = new THREE.Vector3(0, 1.5, -1);
-    const duration = 1000; // 1 second
-    const startTime = performance.now();
-
-    function animate() {
-      const now = performance.now();
-      const t = Math.min((now - startTime) / duration, 1);
-      overlay.object3D.position.lerpVectors(worldPosition, finalPosition, t);
-      if (t < 1) requestAnimationFrame(animate);
-    }
-    requestAnimationFrame(animate);
-
-    hintEl.innerText = "Overlay fixed in place, you can step back.";
-    statusEl.innerHTML = "Status: <strong>Overlay fixed</strong>";
-  }
+  hintEl.innerText = "Overlay anchored to the artwork.";
 });
 
 marker.addEventListener("markerLost", () => {
   statusEl.innerHTML = "Status: <strong>Marker lost</strong>";
-  hintEl.innerText = "Overlay remains fixed in world space.";
+  hintEl.innerText = "Overlay will reappear when you point back.";
 });
 </script>
 
