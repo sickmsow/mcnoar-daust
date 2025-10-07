@@ -3,10 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MCNOAR — Anchored AR Text Overlay</title>
-    <!-- A-Frame & AR.js -->
+    <title>MCNOAR — MindAR Anchored Overlay</title>
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar-nft.js"></script>
+    <!-- MindAR -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body {
         margin: 0;
@@ -63,100 +64,106 @@
   <body>
     <div class="ui">
       <div class="card">
-        <strong>Anchored AR Overlay</strong><br />
-        Point your camera at the red box marker.
+        <strong>MindAR Anchored Overlay</strong><br />
+        Point your camera at the target image.
       </div>
       <div class="card" id="status">Status: <strong>Waiting</strong></div>
     </div>
-    <div class="center-hint" id="hint">Look for the red box marker</div>
-    <div id="debugInfo">Loading AR...</div>
+    <div class="center-hint" id="hint">Scanning for target image...</div>
+    <div id="debugInfo">Loading MindAR...</div>
     
     <a-scene
-      embedded
-      arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+      mindar-image="imageTargetSrc: assets/demo.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: no;"
+      color-space="sRGB"
+      renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true;"
       vr-mode-ui="enabled: false"
-      renderer="antialias: true; alpha: true; precision: medium;"
+      device-orientation-permission-ui="enabled: false"
     >
-      <!-- Using preset HIRO marker for testing - replace with your custom marker -->
-      <a-marker preset="hiro" id="marker">
-        <!-- Red Box Placeholder (visible when marker detected) -->
-        <a-box
-          position="0 0.5 0"
-          material="color: red; opacity: 0.8;"
-          scale="1 1 0.1"
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"
-        ></a-box>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      
+      <!-- Target 0 - This anchors to the first image in demo.mind -->
+      <a-entity mindar-image-target="targetIndex: 0" id="target">
         
-        <!-- Top Text -->
+        <!-- Red Box Placeholder (Anchor Plane) -->
+        <a-plane
+          position="0 0 0"
+          rotation="0 0 0"
+          width="1"
+          height="1"
+          material="color: red; opacity: 0.7; transparent: true;"
+        ></a-plane>
+        
+        <!-- Top Text - Above the image -->
         <a-text
           value="Artwork Title — 1950"
           align="center"
-          width="3"
+          width="1.5"
           color="#ffffff"
-          position="0 1.2 0"
-          scale="2 2 2"
+          position="0 0.7 0.01"
+          scale="1.5 1.5 1"
         ></a-text>
         
         <!-- Left Text -->
-        <a-text
-          value="Historical Info:\nThis art symbolizes\nunity and strength."
-          align="left"
-          width="2"
-          color="#ffcc00"
-          position="-1.5 0.5 0"
-          scale="1.5 1.5 1.5"
-        ></a-text>
+        <a-entity position="-0.8 0 0.01">
+          <a-text
+            value="Historical Info:\nSymbolizes unity\nand strength."
+            align="left"
+            width="1"
+            color="#ffcc00"
+            scale="1.2 1.2 1"
+          ></a-text>
+        </a-entity>
         
         <!-- Right Text -->
-        <a-text
-          value="Artist:\nJane Doe\n(1952)"
-          align="right"
-          width="2"
-          color="#00ccff"
-          position="1.5 0.5 0"
-          scale="1.5 1.5 1.5"
-        ></a-text>
-      </a-marker>
-      
-      <a-entity camera></a-entity>
+        <a-entity position="0.8 0 0.01">
+          <a-text
+            value="Artist:\nJane Doe\n(1952)"
+            align="right"
+            width="1"
+            color="#00ccff"
+            scale="1.2 1.2 1"
+          ></a-text>
+        </a-entity>
+        
+      </a-entity>
     </a-scene>
     
     <script>
-      const marker = document.querySelector("#marker");
+      const target = document.querySelector("#target");
       const statusEl = document.querySelector("#status");
       const hintEl = document.querySelector("#hint");
       const debugInfo = document.querySelector("#debugInfo");
       
-      let markerVisible = false;
+      let targetVisible = false;
       
-      // Debug scene loaded
-      document.querySelector('a-scene').addEventListener('loaded', () => {
-        debugInfo.innerHTML = "✓ AR Scene loaded<br>✓ Camera active<br>Waiting for marker...";
-        console.log("AR.js scene loaded");
+      // Scene loaded
+      document.querySelector('a-scene').addEventListener('renderstart', () => {
+        debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br>Scanning for target...";
+        console.log("MindAR scene started");
       });
       
-      // Marker found
-      marker.addEventListener("markerFound", () => {
-        markerVisible = true;
-        statusEl.innerHTML = "Status: <strong style='color: #0a0'>Marker detected ✓</strong>";
-        hintEl.innerText = "AR info anchored to artwork!";
-        debugInfo.innerHTML = "✓ AR Scene loaded<br>✓ Camera active<br><strong style='color: #0f0'>✓ MARKER DETECTED!</strong>";
-        console.log("Marker found!");
+      // Target found
+      target.addEventListener("targetFound", () => {
+        targetVisible = true;
+        statusEl.innerHTML = "Status: <strong style='color: #0a0'>Target detected ✓</strong>";
+        hintEl.innerText = "AR overlay active!";
+        debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br><strong style='color: #0f0'>✓ TARGET FOUND!</strong>";
+        console.log("Target found!");
       });
       
-      // Marker lost
-      marker.addEventListener("markerLost", () => {
-        markerVisible = false;
-        statusEl.innerHTML = "Status: <strong style='color: #f60'>Marker lost</strong>";
-        hintEl.innerText = "Hold camera steady on the marker.";
-        debugInfo.innerHTML = "✓ AR Scene loaded<br>✓ Camera active<br><span style='color: #f60'>⚠ Marker lost - reposition</span>";
-        console.log("Marker lost");
+      // Target lost
+      target.addEventListener("targetLost", () => {
+        targetVisible = false;
+        statusEl.innerHTML = "Status: <strong style='color: #f60'>Target lost</strong>";
+        hintEl.innerText = "Hold camera steady on the target.";
+        debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br><span style='color: #f60'>⚠ Target lost</span>";
+        console.log("Target lost");
       });
       
-      // Periodic debug update
+      // Periodic status update
       setInterval(() => {
-        if (!markerVisible) {
-          debugInfo.innerHTML = "✓ AR Scene loaded<br>✓ Camera active<br>Looking for HIRO marker...";
+        if (!targetVisible) {
+          debugInfo.innerHTML = "✓ MindAR loaded<br>✓ Camera active<br>Scanning for target...";
         }
       }, 3000);
     </script>

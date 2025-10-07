@@ -12,7 +12,7 @@ const App = () => {
       id: 1,
       title: "Text Overlay (Intro to AR)",
       description: `
-        When visitors scan the QR code or point at the red box, a simple 3D text overlay 
+        When visitors scan the QR code or point at the target image, a simple 3D text overlay 
         appears above the piece. It provides artist info, creation year, and cultural context.
       `,
       qrLink: "https://mcnoar-daust.vercel.app/feature1.html",
@@ -103,25 +103,48 @@ const App = () => {
               />
             )}
 
-            {/* Red box AR trigger */}
+            {/* AR Target Image - demo.png from public folder */}
             <div
               style={{
-                width: "120px",
-                height: "120px",
-                backgroundColor: "red",
-                borderRadius: "8px",
-                marginTop: "1rem",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                color: "#fff",
-                fontWeight: "bold",
-                cursor: "pointer",
-                userSelect: "none",
+                marginTop: "1.5rem",
+                textAlign: "center",
               }}
-              onClick={() => window.open(feature.qrLink, "_blank")}
             >
-              AR Trigger
+              <p
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#666",
+                  marginBottom: "0.5rem",
+                  fontWeight: "500",
+                }}
+              >
+                📷 Point your camera at this image:
+              </p>
+              <img
+                src="/demo.png"
+                alt="AR Target Image"
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  objectFit: "contain",
+                  border: "3px solid #e0e0e0",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease",
+                }}
+                onClick={() => window.open(feature.qrLink, "_blank")}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              />
+              <p
+                style={{
+                  fontSize: "0.8rem",
+                  color: "#999",
+                  marginTop: "0.5rem",
+                }}
+              >
+                Click to open AR experience
+              </p>
             </div>
 
             {/* QR code */}
@@ -132,6 +155,7 @@ const App = () => {
                 borderRadius: "8px",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                 marginTop: "1rem",
+                display: "inline-block",
               }}
             >
               <QRCode value={feature.qrLink} size={80} />
