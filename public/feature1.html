@@ -4,19 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MCNOAR — Feature 1: Text Overlay</title>
+
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
   <style>
     body { margin: 0; font-family: Inter, sans-serif; background: #f6f7fb; }
     .ui {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      z-index: 50;
-      pointer-events: none;
+      position: fixed; top: 12px; left: 12px; right: 12px;
+      display: flex; justify-content: space-between; gap: 12px;
+      z-index: 50; pointer-events: none;
     }
     .ui .card {
       pointer-events: auto;
@@ -43,79 +40,94 @@
 </head>
 <body>
 
-  <div class="ui">
-    <div class="card">
-      <strong>Feature 1 — Text Overlay</strong><br>
-      Click the red box in AR → text overlay appears anchored.
-    </div>
-    <div class="card" id="status">Status: <strong>Waiting</strong></div>
+<div class="ui">
+  <div class="card">
+    <strong>Feature 1 — Text Overlay</strong><br>
+    Point your camera at the red box → overlay appears.
   </div>
+  <div class="card" id="status">Status: <strong>Waiting</strong></div>
+</div>
 
-  <div class="center-hint" id="hint">Look for the red box and tap it</div>
+<div class="center-hint" id="hint">Look for the red box marker</div>
 
-  <a-scene embedded color-space="sRGB" vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true;" style="width:100vw; height:100vh;">
-    <a-camera position="0 1.6 3"></a-camera>
+<a-scene
+  mindar-image="imageTargetSrc: assets/red-box-target.mind; uiLoading: no; maxTrack: 1"
+  embedded
+  color-space="sRGB"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: true"
+  renderer="antialias: true; alpha: true;"
+  style="width:100vw; height:100vh;"
+>
+  <a-camera position="0 0 0"></a-camera>
+  <!-- Marker entity -->
+  <a-entity id="marker" mindar-image-target="targetIndex: 0"></a-entity>
+</a-scene>
 
-    <!-- Red box trigger -->
-    <a-box id="redBox" position="0 1 -2" depth="0.3" height="0.3" width="0.3" color="red"></a-box>
-  </a-scene>
+<script>
+  const markerEl = document.querySelector("#marker");
+  const sceneEl = document.querySelector("a-scene");
+  const statusEl = document.querySelector("#status");
+  const hintEl = document.querySelector("#hint");
 
-  <script>
-    const redBox = document.querySelector("#redBox");
-    const statusEl = document.querySelector("#status");
-    const hintEl = document.querySelector("#hint");
-    const sceneEl = document.querySelector("a-scene");
+  let overlayCreated = false;
 
-    let overlayCreated = false;
+  function createTextOverlay() {
+    if (overlayCreated) return;
 
-    function createTextOverlay() {
-      if (overlayCreated) return;
+    const parent = document.createElement("a-entity");
+    parent.setAttribute("id", "persistent-overlay");
+    parent.setAttribute("position", "0 0 0");
 
-      const parent = document.createElement("a-entity");
-      parent.setAttribute("id", "persistent-overlay");
-      parent.setAttribute("position", "0 1.5 -2");
+    // Title
+    const title = document.createElement("a-entity");
+    title.setAttribute("text", "value: Historical Figure\nTitle Here; align: center; width: 1.4; color: #fff");
+    title.setAttribute("position", "0 0.35 0");
+    parent.appendChild(title);
 
-      // Title
-      const title = document.createElement("a-entity");
-      title.setAttribute("text", "value: Historical Figure\nTitle Here; align: center; width: 1.4; color: #fff");
-      title.setAttribute("position", "0 0.3 0");
-      parent.appendChild(title);
+    // Front text
+    const frontText = document.createElement("a-entity");
+    frontText.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
+    frontText.setAttribute("position", "0 0 0.02");
+    parent.appendChild(frontText);
 
-      // Body text front
-      const bodyFront = document.createElement("a-entity");
-      bodyFront.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
-      bodyFront.setAttribute("position", "0 0 0.02");
-      parent.appendChild(bodyFront);
+    // Back text
+    const backText = document.createElement("a-entity");
+    backText.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
+    backText.setAttribute("position", "0 0 -0.02");
+    backText.setAttribute("rotation", "0 180 0");
+    parent.appendChild(backText);
 
-      // Body text back
-      const bodyBack = document.createElement("a-entity");
-      bodyBack.setAttribute("text", "value: Born: 1890\nImportant for: XYZ; align: center; width: 1.2; color: #e6f9ff");
-      bodyBack.setAttribute("position", "0 0 -0.02");
-      bodyBack.setAttribute("rotation", "0 180 0");
-      parent.appendChild(bodyBack);
+    // Background plane
+    const bg = document.createElement("a-plane");
+    bg.setAttribute("width", "1.6");
+    bg.setAttribute("height", "0.9");
+    bg.setAttribute("material", "color: #000; opacity: 0.28; side: double");
+    bg.setAttribute("position", "0 0 0");
+    parent.appendChild(bg);
 
-      // Background plane
-      const bg = document.createElement("a-plane");
-      bg.setAttribute("width", "1.6");
-      bg.setAttribute("height", "0.9");
-      bg.setAttribute("material", "color: #000; opacity: 0.28; side: double");
-      bg.setAttribute("position", "0 0 0");
-      parent.appendChild(bg);
+    // Fade-in animation
+    parent.setAttribute("scale", "0.01 0.01 0.01");
+    parent.setAttribute("animation__open", "property: scale; to: 1 1 1; dur: 700; easing: easeOutBack");
 
-      // Fade-in animation
-      parent.setAttribute("scale", "0.01 0.01 0.01");
-      parent.setAttribute("animation__open", "property: scale; to: 1 1 1; dur: 700; easing: easeOutBack");
+    sceneEl.appendChild(parent);
+    overlayCreated = true;
 
-      sceneEl.appendChild(parent);
-      overlayCreated = true;
+    statusEl.innerHTML = "Status: <strong>Overlay active</strong>";
+    hintEl.innerText = "Walk around the box to see text from different sides.";
+  }
 
-      statusEl.innerHTML = "Status: <strong>Overlay active</strong>";
-      hintEl.innerText = "Walk around the box to see the text from different sides.";
-    }
+  // Trigger overlay when marker is detected
+  markerEl.addEventListener("targetFound", () => {
+    statusEl.innerHTML = "Status: <strong>Marker detected</strong>";
+    hintEl.innerText = "Overlay appearing...";
+    createTextOverlay();
+  });
 
-    redBox.addEventListener("click", () => {
-      createTextOverlay();
-    });
-  </script>
+  markerEl.addEventListener("targetLost", () => {
+    statusEl.innerHTML = "Status: <strong>Marker lost</strong>";
+    hintEl.innerText = "Overlay remains anchored.";
+  });
+</script>
 </body>
 </html>
