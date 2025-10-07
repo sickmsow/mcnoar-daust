@@ -22,7 +22,7 @@ const App = () => {
         artist’s name, the creation year, and a short cultural background. 
         It’s the simplest feature, ideal for museums introducing AR gradually.
       `,
-      qrLink: "https://yourprojectname.vercel.app/feature1.html",
+      qrLink: "https://mcnoar-daust.vercel.app/feature1.html",
       images: artworkImages,
     },
     {
