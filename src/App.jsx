@@ -135,6 +135,22 @@ const App = () => {
                 onClick={() => window.open(feature.qrLink, "_blank")}
                 onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
                 onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              /> 
+              <img
+                src="/MonaLisa.jpg"
+                alt="AR Target Image"
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  objectFit: "contain",
+                  border: "3px solid #e0e0e0",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease",
+                }}
+                onClick={() => window.open(feature.qrLink, "_blank")}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               />
               <p
                 style={{
