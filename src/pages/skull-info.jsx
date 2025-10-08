@@ -1,173 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Oldest Human Skull - Artifact Details</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: 'Georgia', serif;
-        background: #1a1a1a;
-        color: #f5f5f5;
-        line-height: 1.6;
-      }
-      .header {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      }
-      .back-button {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: rgba(255, 255, 255, 0.2);
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-size: 16px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        backdrop-filter: blur(10px);
-      }
-      .back-button:active {
-        transform: scale(0.95);
-      }
-      .header h1 {
-        font-size: 2.5rem;
-        color: white;
-        margin-bottom: 8px;
-        font-weight: 400;
-      }
-      .header p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.1rem;
-      }
-      .hero-image {
-        width: 100%;
-        height: 300px;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), 
-                    url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800') center/cover;
-        display: flex;
-        align-items: flex-end;
-        padding: 30px;
-      }
-      .hero-caption {
-        background: rgba(0, 0, 0, 0.7);
-        padding: 15px 20px;
-        border-radius: 12px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .hero-caption h2 {
-        font-size: 1.3rem;
-        color: #f5576c;
-        margin-bottom: 5px;
-      }
-      .hero-caption p {
-        font-size: 0.95rem;
-        color: #ccc;
-      }
-      .content {
-        padding: 30px 20px;
-        max-width: 800px;
-        margin: 0 auto;
-      }
-      .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-      }
-      .info-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        text-align: center;
-      }
-      .info-card h3 {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        color: #888;
-        margin-bottom: 10px;
-        font-weight: 400;
-      }
-      .info-card p {
-        font-size: 1rem;
-        color: #fff;
-        font-family: system-ui, sans-serif;
-      }
-      .section {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 30px;
-        border-radius: 16px;
-        border-left: 4px solid #f5576c;
-        margin-bottom: 30px;
-      }
-      .section h2 {
-        font-size: 1.8rem;
-        margin-bottom: 20px;
-        color: #f5576c;
-        font-weight: 400;
-      }
-      .section p {
-        font-size: 1.05rem;
-        line-height: 1.8;
-        color: #ddd;
-        margin-bottom: 16px;
-      }
-      .section em {
-        color: #f093fb;
-        font-style: italic;
-      }
-      .divider {
-        height: 1px;
-        background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
-        margin: 40px 0;
-      }
-      .quote {
-        background: rgba(240, 147, 251, 0.1);
-        border-left: 4px solid #f093fb;
-        padding: 25px;
-        border-radius: 12px;
-        margin: 30px 0;
-        font-style: italic;
-        color: #ccc;
-      }
-      .quote p {
-        font-size: 1.1rem;
-        margin: 0;
-      }
-      .footer {
-        text-align: center;
-        padding: 40px 20px;
-        background: rgba(0, 0, 0, 0.5);
-        color: #888;
-        font-size: 0.9rem;
-      }
-      .ar-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-family: system-ui, sans-serif;
-        margin-bottom: 20px;
-      }
-      .timeline {
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
+
+export default function Skull() {
+  const modelRef = useRef(null);
+
+  useEffect(() => {
+    let scene, camera, renderer, controls;
+
+    const mount = modelRef.current;
+
+    // Scene setup
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(
+      75,
+      mount.clientWidth / mount.clientHeight,
+      0.1,
+      1000
+    );
+    camera.position.z = 2;
+
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(mount.clientWidth, mount.clientHeight);
+    mount.appendChild(renderer.domElement);
+
+    // Controls
+    controls = new TrackballControls(camera, renderer.domElement);
+
+    // Lighting
+    const light = new THREE.DirectionalLight(0xffffff, 2);
+    light.position.set(2, 2, 2);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040, 2));
+
+    // Load GLB
+    const loader = new GLTFLoader();
+    loader.load(
+      "/assets/skull.glb", // public/assets/skull.glb
+      (gltf) => scene.add(gltf.scene),
+      undefined,
+      (error) => console.error("Error loading model:", error)
+    );
+
+    // Animation loop
+    const animate = () => {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Resize handler
+    const handleResize = () => {
+      camera.aspect = mount.clientWidth / mount.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(mount.clientWidth, mount.clientHeight);
+    };
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      mount.removeChild(renderer.domElement);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  return (
+    <>
+      {/* Inline CSS */}
+      <style>{`
+        * {margin:0; padding:0; box-sizing:border-box;}
+        body {font-family: 'Georgia', serif; background:#1a1a1a; color:#f5f5f5; line-height:1.6;}
+        .header {background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); padding:20px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+        .back-button {position:absolute; top:20px; left:20px; background:rgba(255,255,255,0.2); border:none; color:white; padding:10px 20px; border-radius:25px; font-size:16px; cursor:pointer; display:flex; align-items:center; gap:8px; backdrop-filter:blur(10px);}
+        .back-button:active {transform:scale(0.95);}
+        .header h1 {font-size:2.5rem; color:white; margin-bottom:8px; font-weight:400;}
+        .header p {color:rgba(255,255,255,0.9); font-size:1.1rem;}
+        .hero-image {width:100%; height:300px; background:linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800') center/cover; display:flex; align-items:flex-end; padding:30px;}
+        .hero-caption {background: rgba(0,0,0,0.7); padding:15px 20px; border-radius:12px; backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.1);}
+        .hero-caption h2 {font-size:1.3rem; color:#f5576c; margin-bottom:5px;}
+        .hero-caption p {font-size:0.95rem; color:#ccc;}
+        .content {padding:30px 20px; max-width:800px; margin:0 auto;}
+        .info-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:20px; margin-bottom:40px;}
+        .info-card {background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); text-align:center;}
+        .info-card h3 {font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; color:#888; margin-bottom:10px; font-weight:400;}
+        .info-card p {font-size:1rem; color:#fff; font-family: system-ui, sans-serif;}
+        .section {background:rgba(255,255,255,0.03); padding:30px; border-radius:16px; border-left:4px solid #f5576c; margin-bottom:30px;}
+        .section h2 {font-size:1.8rem; margin-bottom:20px; color:#f5576c; font-weight:400;}
+        .section p {font-size:1.05rem; line-height:1.8; color:#ddd; margin-bottom:16px;}
+        .section em {color:#f093fb; font-style:italic;}
+        .divider {height:1px; background:linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent); margin:40px 0;}
+        .quote {background:rgba(240,147,251,0.1); border-left:4px solid #f093fb; padding:25px; border-radius:12px; margin:30px 0; font-style:italic; color:#ccc;}
+        .quote p {font-size:1.1rem; margin:0;}
+        .footer {text-align:center; padding:40px 20px; background:rgba(0,0,0,0.5); color:#888; font-size:0.9rem;}
+        .ar-badge {display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #f093fb 0%,#f5576c 100%); color:white; padding:8px 16px; border-radius:20px; font-size:0.85rem; font-family: system-ui, sans-serif; margin-bottom:20px;}
+        .timeline {
         position: relative;
         padding-left: 30px;
         margin: 30px 0;
@@ -205,16 +134,12 @@
         color: #ccc;
         font-size: 1rem;
       }
+        #model-container {width:100%; height:80vh; background:#111;} 
+        
+      `}</style>
 
-       #model-container {
-        width: 100%;
-        height: 80vh;
-        background: #111;
-    }
-    </style>
-  </head>
-  <body>
-    <div class="header">
+      {/* JSX Content */}
+      <div class="header">
       <button class="back-button" onclick="window.history.back()">
         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -374,63 +299,17 @@
         </div>
       </div>
 
-      <div class="divider"></div>
+      <div className="divider"></div>
 
-      <div class="section">
-  <h2>3D Model Visualization</h2>
-  <div id="model-container"></div>
+        <div className="section">
+          <h2>3D Model Visualization</h2>
+          <div id="model-container" ref={modelRef}></div>
+        </div>
+      </div>
 
-  <script type="module">
-    import * as THREE from 'https://unpkg.com/three@0.164.0/build/three.module.js';
-    import { GLTFLoader } from 'https://unpkg.com/three@0.164.0/examples/jsm/loaders/GLTFLoader.js';
-    import { TrackballControls } from 'https://unpkg.com/three@0.164.0/examples/jsm/controls/TrackballControls.js';
-
-    let scene, camera, renderer, controls;
-
-    // Scene setup
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 2;
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('model-container').appendChild(renderer.domElement);
-
-    // Controls
-    controls = new TrackballControls(camera, renderer.domElement);
-
-    // Lighting
-    const light = new THREE.DirectionalLight(0xffffff, 2);
-    light.position.set(2, 2, 2);
-    scene.add(light);
-
-    // Load 3D Model
-    const loader = new GLTFLoader();
-    loader.load(
-      'assets\skull.glb',
-      function (gltf) {
-        scene.add(gltf.scene);
-      },
-      undefined,
-      function (error) {
-        console.error('Error loading model:', error);
-      }
-    );
-
-    // Animate
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-
-    animate();
-
-    // Resize handler
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</div>
+      <footer className="footer">
+        © 2025 Museum Experience Prototype
+      </footer>
+    </>
+  );
+}
