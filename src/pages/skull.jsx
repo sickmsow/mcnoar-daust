@@ -139,8 +139,8 @@ export default function Skull() {
       `}</style>
 
       {/* JSX Content */}
-      <div class="header">
-      <button class="back-button" onclick="window.history.back()">
+      <div className="header">
+      <button className="back-button" onclick="window.history.back()">
         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
@@ -150,49 +150,49 @@ export default function Skull() {
       <p>The Oldest Known Homo Sapiens Remains</p>
     </div>
 
-    <div class="hero-image">
-      <div class="hero-caption">
+    <div className="hero-image">
+      <div className="hero-caption">
         <h2>195,000 Years of Human History</h2>
         <p>Discovered in the Omo Kibish Formation, Ethiopia</p>
       </div>
     </div>
 
-    <div class="content">
-      <div class="ar-badge">
+    <div className="content">
+      <div className="ar-badge">
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
         </svg>
         Viewed via 3D AR Model
       </div>
 
-      <div class="info-grid">
-        <div class="info-card">
+      <div className="info-grid">
+        <div className="info-card">
           <h3>Age</h3>
           <p>~195,000 Years</p>
         </div>
-        <div class="info-card">
+        <div className="info-card">
           <h3>Species</h3>
           <p>Homo Sapiens</p>
         </div>
-        <div class="info-card">
+        <div className="info-card">
           <h3>Discovered</h3>
           <p>1967</p>
         </div>
-        <div class="info-card">
+        <div className="info-card">
           <h3>Location</h3>
           <p>Omo Kibish, Ethiopia</p>
         </div>
-        <div class="info-card">
+        <div className="info-card">
           <h3>Discoverer</h3>
           <p>Richard Leakey</p>
         </div>
-        <div class="info-card">
+        <div className="info-card">
           <h3>Significance</h3>
           <p>Oldest Modern Human</p>
         </div>
       </div>
 
-      <div class="section">
+      <div className="section">
         <h2>About the Discovery</h2>
         <p>
           The <em>Omo I</em> skull represents one of the most significant paleoanthropological discoveries 
@@ -213,7 +213,7 @@ export default function Skull() {
         </p>
       </div>
 
-      <div class="quote">
+      <div className="quote">
         <p>
           "The Omo fossils represent the earliest evidence for our species, Homo sapiens. They push back 
           the origin of our species by tens of thousands of years and confirm Africa as the birthplace 
@@ -221,9 +221,9 @@ export default function Skull() {
         </p>
       </div>
 
-      <div class="divider"></div>
+      <div className="divider"></div>
 
-      <div class="section">
+      <div className="section">
         <h2>Anatomical Significance</h2>
         <p>
           The Omo I cranium exhibits several key features that define anatomically modern humans. The skull 
@@ -243,9 +243,9 @@ export default function Skull() {
         </p>
       </div>
 
-      <div class="divider"></div>
+      <div className="divider"></div>
 
-      <div class="section">
+      <div className="section">
         <h2>Impact on Human Origins Research</h2>
         <p>
           The discovery of Omo I fundamentally changed our understanding of human evolution and the origin 
@@ -266,32 +266,32 @@ export default function Skull() {
         </p>
       </div>
 
-      <div class="divider"></div>
+      <div className="divider"></div>
 
-      <div class="section">
+      <div className="section">
         <h2>Timeline of Discovery and Research</h2>
-        <div class="timeline">
-          <div class="timeline-item">
+        <div className="timeline">
+          <div className="timeline-item">
             <h3>1967</h3>
             <p>Richard Leakey's team discovers the Omo I remains in southern Ethiopia during the International 
             Omo Research Expedition.</p>
           </div>
-          <div class="timeline-item">
+          <div className="timeline-item">
             <h3>1969</h3>
             <p>Initial publication of the discovery. The fossils are recognized as early <em>Homo sapiens</em> 
             but their exact age remains uncertain.</p>
           </div>
-          <div class="timeline-item">
+          <div className="timeline-item">
             <h3>2005</h3>
             <p>New dating techniques using argon-argon dating of volcanic ash layers establish the age of 
             Omo I at approximately 195,000 years, making it the oldest known modern human fossil.</p>
           </div>
-          <div class="timeline-item">
+          <div className="timeline-item">
             <h3>2008</h3>
             <p>Further studies confirm the anatomical modernity of the skull and its significance for 
             understanding human evolution.</p>
           </div>
-          <div class="timeline-item">
+          <div className="timeline-item">
             <h3>Present</h3>
             <p>Ongoing research continues to reveal insights about early human behavior, migration patterns, 
             and the evolutionary changes that led to modern humans.</p>
@@ -299,15 +299,15 @@ export default function Skull() {
         </div>
       </div>
 
-      <div className="divider"></div>
+      <div classNameName="divider"></div>
 
-        <div className="section">
+        <div classNameName="section">
           <h2>3D Model Visualization</h2>
           <div id="model-container" ref={modelRef}></div>
         </div>
       </div>
 
-      <footer className="footer">
+      <footer classNameName="footer">
         © 2025 Museum Experience Prototype
       </footer>
     </>
