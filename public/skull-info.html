@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oldest Human Skull - Artifact Details</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Georgia', serif;
+        background: #1a1a1a;
+        color: #f5f5f5;
+        line-height: 1.6;
+      }
+      .header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      .back-button {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(10px);
+      }
+      .back-button:active {
+        transform: scale(0.95);
+      }
+      .header h1 {
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 8px;
+        font-weight: 400;
+      }
+      .header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+      }
+      .hero-image {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), 
+                    url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800') center/cover;
+        display: flex;
+        align-items: flex-end;
+        padding: 30px;
+      }
+      .hero-caption {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px 20px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .hero-caption h2 {
+        font-size: 1.3rem;
+        color: #f5576c;
+        margin-bottom: 5px;
+      }
+      .hero-caption p {
+        font-size: 0.95rem;
+        color: #ccc;
+      }
+      .content {
+        padding: 30px 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+      .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+      }
+      .info-card h3 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #888;
+        margin-bottom: 10px;
+        font-weight: 400;
+      }
+      .info-card p {
+        font-size: 1rem;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+      }
+      .section {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 30px;
+        border-radius: 16px;
+        border-left: 4px solid #f5576c;
+        margin-bottom: 30px;
+      }
+      .section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #f5576c;
+        font-weight: 400;
+      }
+      .section p {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #ddd;
+        margin-bottom: 16px;
+      }
+      .section em {
+        color: #f093fb;
+        font-style: italic;
+      }
+      .divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+        margin: 40px 0;
+      }
+      .quote {
+        background: rgba(240, 147, 251, 0.1);
+        border-left: 4px solid #f093fb;
+        padding: 25px;
+        border-radius: 12px;
+        margin: 30px 0;
+        font-style: italic;
+        color: #ccc;
+      }
+      .quote p {
+        font-size: 1.1rem;
+        margin: 0;
+      }
+      .footer {
+        text-align: center;
+        padding: 40px 20px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #888;
+        font-size: 0.9rem;
+      }
+      .ar-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-family: system-ui, sans-serif;
+        margin-bottom: 20px;
+      }
+      .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin: 30px 0;
+      }
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, #f093fb, #f5576c);
+      }
+      .timeline-item {
+        margin-bottom: 30px;
+        position: relative;
+      }
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -35px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #f5576c;
+        border: 3px solid #1a1a1a;
+      }
+      .timeline-item h3 {
+        font-size: 1.2rem;
+        color: #f093fb;
+        margin-bottom: 8px;
+      }
+      .timeline-item p {
+        color: #ccc;
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <button class="back-button" onclick="window.history.back()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to AR
+      </button>
+      <h1>Omo I Skull</h1>
+      <p>The Oldest Known Homo Sapiens Remains</p>
+    </div>
+
+    <div class="hero-image">
+      <div class="hero-caption">
+        <h2>195,000 Years of Human History</h2>
+        <p>Discovered in the Omo Kibish Formation, Ethiopia</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="ar-badge">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+        </svg>
+        Viewed via 3D AR Model
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>Age</h3>
+          <p>~195,000 Years</p>
+        </div>
+        <div class="info-card">
+          <h3>Species</h3>
+          <p>Homo Sapiens</p>
+        </div>
+        <div class="info-card">
+          <h3>Discovered</h3>
+          <p>1967</p>
+        </div>
+        <div class="info-card">
+          <h3>Location</h3>
+          <p>Omo Kibish, Ethiopia</p>
+        </div>
+        <div class="info-card">
+          <h3>Discoverer</h3>
+          <p>Richard Leakey</p>
+        </div>
+        <div class="info-card">
+          <h3>Significance</h3>
+          <p>Oldest Modern Human</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>About the Discovery</h2>
+        <p>
+          The <em>Omo I</em> skull represents one of the most significant paleoanthropological discoveries 
+          of the 20th century. Found in 1967 by Richard Leakey's expedition team in the Omo Kibish Formation 
+          in southern Ethiopia, these remains have been dated to approximately 195,000 years ago, making them 
+          the oldest known fossils of anatomically modern <em>Homo sapiens</em>.
+        </p>
+        <p>
+          The skull, along with associated postcranial bones, was discovered in deposits of the Kibish Formation 
+          along the Omo River. The remains were initially dated using volcanic ash layers, and subsequent 
+          radiometric dating techniques have consistently confirmed the ancient age of these fossils.
+        </p>
+        <p>
+          What makes Omo I particularly remarkable is that it displays the characteristic features of modern 
+          humans: a high, rounded cranium, a flat face tucked under the braincase, and a pronounced chin. 
+          These features distinguish <em>Homo sapiens</em> from earlier human species and demonstrate that 
+          our species emerged much earlier than previously thought.
+        </p>
+      </div>
+
+      <div class="quote">
+        <p>
+          "The Omo fossils represent the earliest evidence for our species, Homo sapiens. They push back 
+          the origin of our species by tens of thousands of years and confirm Africa as the birthplace 
+          of humanity."
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <h2>Anatomical Significance</h2>
+        <p>
+          The Omo I cranium exhibits several key features that define anatomically modern humans. The skull 
+          has a high, globular braincase with a cranial capacity similar to modern humans, estimated at 
+          around 1,400 cubic centimeters. This indicates that brain size had already reached modern proportions 
+          by 195,000 years ago.
+        </p>
+        <p>
+          The face is relatively flat and positioned directly under the frontal part of the skull, rather 
+          than projecting forward as in earlier human species. The presence of a distinct chin is another 
+          defining characteristic that separates <em>Homo sapiens</em> from our evolutionary ancestors.
+        </p>
+        <p>
+          The associated skeletal remains show that Omo I had a fully modern postcranial anatomy, with limb 
+          proportions and body structure similar to present-day humans. This suggests that the transition 
+          to modern human anatomy was largely complete by this early date.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <h2>Impact on Human Origins Research</h2>
+        <p>
+          The discovery of Omo I fundamentally changed our understanding of human evolution and the origin 
+          of our species. Before this discovery, the emergence of <em>Homo sapiens</em> was thought to have 
+          occurred much later, around 100,000-130,000 years ago.
+        </p>
+        <p>
+          The Omo remains, along with other early <em>Homo sapiens</em> fossils from sites like Herto in 
+          Ethiopia and Jebel Irhoud in Morocco, have pushed back the origin of our species significantly 
+          and confirmed the "Out of Africa" theory. This theory proposes that modern humans evolved in 
+          Africa before dispersing to other parts of the world.
+        </p>
+        <p>
+          The evidence from Omo Kibish suggests that anatomically modern humans coexisted with other human 
+          species for tens of thousands of years before eventually spreading across the globe. This extended 
+          timeline has important implications for understanding human behavior, culture, and the development 
+          of modern cognitive abilities.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <h2>Timeline of Discovery and Research</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h3>1967</h3>
+            <p>Richard Leakey's team discovers the Omo I remains in southern Ethiopia during the International 
+            Omo Research Expedition.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>1969</h3>
+            <p>Initial publication of the discovery. The fossils are recognized as early <em>Homo sapiens</em> 
+            but their exact age remains uncertain.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>2005</h3>
+            <p>New dating techniques using argon-argon dating of volcanic ash layers establish the age of 
+            Omo I at approximately 195,000 years, making it the oldest known modern human fossil.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>2008</h3>
+            <p>Further studies confirm the anatomical modernity of the skull and its significance for 
+            understanding human evolution.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>Present</h3>
+            <p>Ongoing research continues to reveal insights about early human behavior, migration patterns, 
+            and the evolutionary changes that led to modern humans.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <h2>Ethiopia: The Cradle of Humanity</h2>

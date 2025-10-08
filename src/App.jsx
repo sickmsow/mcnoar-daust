@@ -20,11 +20,11 @@ const App = () => {
     },
     {
       id: 2,
-      title: "Artwork Recognition",
+      title: "3d Model ",
       description: `
-        The app recognizes artworks automatically with MindAR — no QR required.
+        This Feature allows users to use an image to generate a 3d model.
       `,
-      qrLink: "/feature2.html",
+      qrLink: "https://mcnoar-daust.vercel.app/feature2.html",
     },
   ];
 
